@@ -10,10 +10,12 @@ type CounterPropsType = {
 export const Counter = (props: CounterPropsType) => {
 
     let count = 0
-    const [counter, setCounter] = useState(count)
-    const [valueMax, setValueMax] = useState(0)
-    const [valueStart, setValueStart] = useState(0)
-    const [error,setError] = useState<string | null>('Установите значение Max и Start')
+    const [counterStart, setCounterStart] = useState<number>(0)
+    const [counterEnd, setCounterEnd] = useState<number>(0)
+
+    const [valueMax, setValueMax] = useState<number>(0)
+    const [valueStart, setValueStart] = useState<number>(0)
+    const [error, setError] = useState<string | null>('Установите значение Max и Start')
 
     //ИНПУТЫ
     const onChangeInputMax = (event: ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +26,7 @@ export const Counter = (props: CounterPropsType) => {
             setError("Max не может быть меньше нуля")
         } else if (inputValueMax > valueStart) {
             setError("Установите значение Max и Start")
-        } else  if (inputValueMax === valueStart) {
+        } else if (inputValueMax === valueStart) {
             setError('Max не может быть равен Start')
         } else if (inputValueMax < valueStart) {
             setError('Max не может быть меньше Start')
@@ -36,12 +38,12 @@ export const Counter = (props: CounterPropsType) => {
         let inputValueStart = event.currentTarget.valueAsNumber
         setValueStart(inputValueStart)
 
-        if (inputValueStart >= 0 && inputValueStart < valueMax && inputValueStart !== valueMax ) {
+        if (inputValueStart >= 0 && inputValueStart < valueMax && inputValueStart !== valueMax) {
             setValueStart(inputValueStart)
         }
 
         if (inputValueStart < 0) {
-            setError('Стартовое значение не может быть меньше нуля')
+            setError('Start не может быть меньше нуля')
         } else if (inputValueStart === valueMax) {
             setError('Start и Max не могут быть одинаковыми')
         } else if (inputValueStart > valueMax) {
@@ -60,14 +62,20 @@ export const Counter = (props: CounterPropsType) => {
 
     //BUTTONS
     const onClickSetButtonHandler = () => {
-        setCounter(valueStart)
+        setCounterStart(valueStart)
+        setCounterEnd(valueMax)
+        setError(null)
     }
     const onClickIncrementClick = () => {
-        setValueStart(valueStart)
-        setCounter(counter + 1)
+        // setValueStart(valueStart)
+        if(counterStart >= counterEnd) {
+            return alert('value max')
+        }
+        setCounterStart(counterStart + 1)
+       /* setError(null)*/
     }
     const onClickNullButtonHandler = () => {
-        setCounter(0)
+        setValueStart(0)
     }
 
 
@@ -78,12 +86,32 @@ export const Counter = (props: CounterPropsType) => {
         } else if (valueStart === valueMax) {
             return true
         } else if (valueStart > valueMax) {
-            return  true
-        } else  if (valueMax < 0) {
+            return true
+        } else if (valueMax < 0) {
             return true
         }
     }
 
+    const onClickDisabledIncrementHandler = () => {
+        // if (valueStart < 0) {
+        //     return true
+        // } else if (valueStart === valueMax) {
+        //     return true
+        // } else if (valueStart > valueMax) {
+        //     return true
+        // } else {
+        //    return  false
+        // }
+        if(counterStart >= counterEnd) {
+            return true
+        }
+        if (error) {
+            return true
+        }
+        // if (valueStart === valueMax) {
+        //     return true
+        // }
+    }
 
     return (
         <>
@@ -128,14 +156,13 @@ export const Counter = (props: CounterPropsType) => {
                     <div className={s.counterWrapper}>
                         <div className={s.scoreboard}>
                             <div className={s.counterNumber}>
-                                {counter}
-                                <div className={s.error}>{error}</div>
+                                {error ? <div className={s.error}>{error}</div> : counterStart}
                             </div>
                         </div>
 
                         <div className={s.wrapperButtons}>
                             <Button
-                                disabled={false}
+                                disabled={onClickDisabledIncrementHandler()}
                                 className={s.setButton}
                                 nameButton={'inc'}
                                 callBack={onClickIncrementClick}
