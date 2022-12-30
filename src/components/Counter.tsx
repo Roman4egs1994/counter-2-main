@@ -1,6 +1,7 @@
 import React, {ChangeEvent, useState} from 'react';
 import {Button} from "./Button";
 import s from './Counter.module.css'
+import {start} from "repl";
 
 type CounterPropsType = {
     name: string
@@ -12,6 +13,7 @@ export const Counter = (props: CounterPropsType) => {
     let count = 0
     const [counterStart, setCounterStart] = useState<number>(0)
     const [counterEnd, setCounterEnd] = useState<number>(0)
+
 
     const [valueMax, setValueMax] = useState<number>(0)
     const [valueStart, setValueStart] = useState<number>(0)
@@ -38,9 +40,9 @@ export const Counter = (props: CounterPropsType) => {
         let inputValueStart = event.currentTarget.valueAsNumber
         setValueStart(inputValueStart)
 
-        if (inputValueStart >= 0 && inputValueStart < valueMax && inputValueStart !== valueMax) {
-            setValueStart(inputValueStart)
-        }
+        // if (inputValueStart >= 0 && inputValueStart < valueMax && inputValueStart !== valueMax) {
+        //     setValueStart(inputValueStart)
+        // }
 
         if (inputValueStart < 0) {
             setError('Start не может быть меньше нуля')
@@ -49,33 +51,31 @@ export const Counter = (props: CounterPropsType) => {
         } else if (inputValueStart > valueMax) {
             setError('Start не может быть больше Max')
         }
-
-
-        // else if (inputValueStart === 0 && valueMax === 0){
-        //     setError('Установите значения Start и Max')
-        // }
-
-
-        console.log('inputValueStart', inputValueStart)
     }
 
 
     //BUTTONS
+
+    // onClickSetButtonHandler иницилицазия стартового стейта и максимального
     const onClickSetButtonHandler = () => {
         setCounterStart(valueStart)
         setCounterEnd(valueMax)
         setError(null)
     }
+
     const onClickIncrementClick = () => {
         // setValueStart(valueStart)
-        if(counterStart >= counterEnd) {
-            return alert('value max')
-        }
+        // if(counterStart >= counterEnd) {
+        //     return alert('value max')
+        // }
         setCounterStart(counterStart + 1)
        /* setError(null)*/
     }
+
+
     const onClickNullButtonHandler = () => {
-        setValueStart(0)
+        setCounterStart(0)
+        // setError(null)
     }
 
 
@@ -116,7 +116,7 @@ export const Counter = (props: CounterPropsType) => {
     return (
         <>
             <div>
-                <h1 className={s.title}>asd</h1>
+                <h1 className={s.title}>Настройка</h1>
                 <div className={s.wrapper}>
                     <div className={s.counterWrapper}>
                         <div className={s.scoreboard}>
@@ -155,22 +155,22 @@ export const Counter = (props: CounterPropsType) => {
                 <div className={s.wrapper}>
                     <div className={s.counterWrapper}>
                         <div className={s.scoreboard}>
-                            <div className={s.counterNumber}>
-                                {error ? <div className={s.error}>{error}</div> : counterStart}
+                            <div>
+                                {error ? <div className={s.error}>{error}</div> : <div className={counterStart === valueMax ? s.counterNumberMax :  s.counterNumber}>{counterStart}</div> }
                             </div>
                         </div>
 
                         <div className={s.wrapperButtons}>
                             <Button
                                 disabled={onClickDisabledIncrementHandler()}
-                                className={s.setButton}
+                                className={counterStart === counterEnd ? s.setButtonIncDis : s.setButton}
                                 nameButton={'inc'}
                                 callBack={onClickIncrementClick}
                             />
 
                             <Button
-                                disabled={false}
-                                className={s.setButton1}
+
+                                className={counterStart === 0 ? s.setButtonResetDis :s.setButtonReset}
                                 nameButton={'reset'}
                                 callBack={onClickNullButtonHandler}
                             />
