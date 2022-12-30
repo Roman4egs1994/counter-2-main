@@ -74,7 +74,7 @@ export const Counter = (props: CounterPropsType) => {
 
 
     const onClickNullButtonHandler = () => {
-        setCounterStart(0)
+        setCounterStart(valueStart)
         // setError(null)
     }
 
