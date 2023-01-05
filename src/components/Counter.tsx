@@ -1,7 +1,6 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Button} from "./Button";
 import s from './Counter.module.css'
-import {start} from "repl";
 
 type CounterPropsType = {
     name: string
@@ -10,14 +9,49 @@ type CounterPropsType = {
 
 export const Counter = (props: CounterPropsType) => {
 
-    let count = 0
-    const [counterStart, setCounterStart] = useState<number>(0)
+    const [counterStart, setCounterStart] = useState<number>(()=> {
+        let counterStartAsString = localStorage.getItem('valueStartLoc')
+        if (counterStartAsString) {
+            let newValue = JSON.parse(counterStartAsString)
+            return newValue
+        } else return  'Heelo'
+    })
     const [counterEnd, setCounterEnd] = useState<number>(0)
 
 
-    const [valueMax, setValueMax] = useState<number>(0)
-    const [valueStart, setValueStart] = useState<number>(0)
+    // const [valueMax, setValueMax] = useState<number>(0)
+    const [valueMax, setValueMax] = useState<number>(()=> {
+        let valueAsStringMax = localStorage.getItem('valueMaxLoc')
+        if (valueAsStringMax) {
+            let newValue = JSON.parse(valueAsStringMax)
+            return newValue
+        } else return  1
+    })
+    const [valueStart, setValueStart] = useState<number>(()=> {
+        let valueAsStringStart = localStorage.getItem('valueStartLoc');
+        if (valueAsStringStart) {
+            let newValue = JSON.parse(valueAsStringStart)
+            return newValue
+        } else return  1
+    })
     const [error, setError] = useState<string | null>('Установите значение Max и Start')
+
+
+
+    //Получение LocalStorage на инпуты
+    useEffect(()=> {
+        localStorage.setItem('valueMaxLoc', JSON.stringify(valueMax))
+    },[valueMax])
+    useEffect(()=> {
+        localStorage.setItem('valueStartLoc', JSON.stringify(valueStart))
+    },[valueStart])
+
+    //Получение LocalStorage на  counterStart
+    useEffect(()=> {
+        localStorage.setItem('counterStartLoc', JSON.stringify(counterStart))
+    },[counterStart])
+
+
 
     //ИНПУТЫ
     const onChangeInputMax = (event: ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +66,8 @@ export const Counter = (props: CounterPropsType) => {
             setError('Max не может быть равен Start')
         } else if (inputValueMax < valueStart) {
             setError('Max не может быть меньше Start')
+        } else if (Number.isNaN(valueMax)) {
+            setError('Введите Max и Start')
         }
 
         console.log('inputValueMax', inputValueMax)
@@ -40,9 +76,7 @@ export const Counter = (props: CounterPropsType) => {
         let inputValueStart = event.currentTarget.valueAsNumber
         setValueStart(inputValueStart)
 
-        // if (inputValueStart >= 0 && inputValueStart < valueMax && inputValueStart !== valueMax) {
-        //     setValueStart(inputValueStart)
-        // }
+
 
         if (inputValueStart < 0) {
             setError('Start не может быть меньше нуля')
@@ -50,12 +84,13 @@ export const Counter = (props: CounterPropsType) => {
             setError('Start и Max не могут быть одинаковыми')
         } else if (inputValueStart > valueMax) {
             setError('Start не может быть больше Max')
+        } else if (Number.isNaN(valueStart)) {
+            setError('Введите Start и Max')
         }
     }
 
 
     //BUTTONS
-
     // onClickSetButtonHandler иницилицазия стартового стейта и максимального
     const onClickSetButtonHandler = () => {
         setCounterStart(valueStart)
@@ -64,18 +99,14 @@ export const Counter = (props: CounterPropsType) => {
     }
 
     const onClickIncrementClick = () => {
-        // setValueStart(valueStart)
-        // if(counterStart >= counterEnd) {
-        //     return alert('value max')
-        // }
+
         setCounterStart(counterStart + 1)
-       /* setError(null)*/
+
     }
 
 
     const onClickNullButtonHandler = () => {
         setCounterStart(valueStart)
-        // setError(null)
     }
 
 
@@ -89,28 +120,28 @@ export const Counter = (props: CounterPropsType) => {
             return true
         } else if (valueMax < 0) {
             return true
+        } else if (Number.isNaN(valueStart)) {
+            return  true
+        } else if (Number.isNaN(valueMax)) {
+            return  true
         }
     }
 
     const onClickDisabledIncrementHandler = () => {
-        // if (valueStart < 0) {
-        //     return true
-        // } else if (valueStart === valueMax) {
-        //     return true
-        // } else if (valueStart > valueMax) {
-        //     return true
-        // } else {
-        //    return  false
-        // }
+
         if(counterStart >= counterEnd) {
             return true
         }
         if (error) {
             return true
         }
-        // if (valueStart === valueMax) {
-        //     return true
-        // }
+
+    }
+
+    const onClickButtonDisabledHandler = () => {
+        if (counterStart === valueStart) {
+            return true
+        }
     }
 
     return (
@@ -169,7 +200,7 @@ export const Counter = (props: CounterPropsType) => {
                             />
 
                             <Button
-
+                                disabled={onClickButtonDisabledHandler()}
                                 className={counterStart === 0 ? s.setButtonResetDis :s.setButtonReset}
                                 nameButton={'reset'}
                                 callBack={onClickNullButtonHandler}
@@ -180,8 +211,6 @@ export const Counter = (props: CounterPropsType) => {
                 </div>
             </div>
         </>
-
-
     );
 };
 
